@@ -19,12 +19,14 @@ Every agentic runtime does the same thing: read a skill, call an LLM, execute to
 You write a skill as a markdown file. You point SubZeroClaw at it. It calls an LLM, executes tools, loops until done. That's the entire runtime.
 
 ```
-~/.subzeroclaw/skills/monitor.md    ← what the agent knows
+~/.subzeroclaw/skills/soul.md       ← identity/personality
+~/.subzeroclaw/skills/memory.md     ← durable single-user memory
+~/.subzeroclaw/skills/monitor.md    ← what the agent knows how to do
 ~/.subzeroclaw/config               ← API key + model
 ~/.subzeroclaw/logs/<session>.txt   ← full I/O trace
 ```
 
-The agent reads the skill into its system prompt, receives input, and autonomously calls tools until the task is complete. When context gets full, it compacts old messages into a summary and keeps going.
+The agent reads every markdown file in `~/.subzeroclaw/skills/` into its system prompt, receives input, and autonomously calls shell until the task is complete. Identity, memory, and procedures are all just skills. When context gets full, it compacts old messages into a summary and keeps going.
 
 ## Why not just use ZeroClaw / OpenClaw?
 
@@ -49,10 +51,11 @@ One tool: **shell**. `popen()` any command, stderr merged into stdout.
 
 Since the LLM has a shell, it has `git`, `curl`, `himalaya`, `signal-cli`, `ffmpeg`, `jq`, `khal`, `pass` — whatever you install. For file operations, the model uses `cat`, `tee`, `sed`, etc. No adapters, no integrations. The adapter is the shell.
 
-## Skills
+## Skills, soul, and memory
 
-Drop a `.md` file in `~/.subzeroclaw/skills/`. It becomes part of the system prompt.
+Drop `.md` files in `~/.subzeroclaw/skills/`. They become part of the system prompt. For a one-user SubZeroClaw, identity and memory do not need special runtime support; keep them as normal skill files such as `soul.md` and `memory.md`.
 
+Example skill:
 ```bash
 cat > ~/.subzeroclaw/skills/backup.md << 'EOF'
 ## Backup Agent
@@ -63,16 +66,16 @@ You monitor /home/pi/data every hour.
 EOF
 ```
 
-No format spec. No skill registry. No trigger matching. Just plain text the LLM reads.
+No format spec. No skill registry. No trigger matching. Just plain text the LLM reads. For small deployments, loading all skills is intentional. Keep skills short; `skills/index.md` is only a map, not a replacement for loading the other files.
 
-The skills included in this repo (`skills/`) are just examples to show the format. They reference tools and paths specific to one setup. Don't use them as-is — write your own for your system, your tools, your workflow. The whole point is that a skill is just a markdown file you write in 30 seconds.
+The skills included in this repo (`skills/`) are examples. `soul.md`, `system.md`, `search.md`, `memory.md`, `skill-management.md`, `debugging.md`, and `index.md` show a minimal single-user continuity layer without adding adapters or changing the runtime loop.
 
 ## Build
 
 ```bash
 make            # builds subzeroclaw (54KB)
 make watchdog   # builds watchdog (17KB)
-make test       # runs 16 tests
+make test       # runs 19 tests
 make install    # copies to ~/.local/bin/
 ```
 
@@ -82,6 +85,7 @@ Requires `libcjson-dev` or uses vendored cJSON automatically.
 
 ```bash
 mkdir -p ~/.subzeroclaw/skills
+cp skills/*.md ~/.subzeroclaw/skills/
 
 cat > ~/.subzeroclaw/config << EOF
 api_key = "sk-or-your-openrouter-key"
@@ -139,6 +143,18 @@ When the message history exceeds `max_messages` (default 40), the agent:
 3. Keeps the last N raw messages intact
 
 No vector DB. No embeddings. One API call to compress context.
+
+## Shell-first continuity
+
+The continuity layer does not add adapters or custom tools. It teaches the model where state lives, then relies on the existing shell tool:
+
+- Identity/personality is a normal skill: `~/.subzeroclaw/skills/soul.md`.
+- Memory is a normal skill: `~/.subzeroclaw/skills/memory.md`.
+- Session recall is `rg`/`grep` over `~/.subzeroclaw/logs/`.
+- Web/page fetching is `curl` plus normal text processing.
+- Reusable procedures and debugging playbooks are additional markdown files in `~/.subzeroclaw/skills/`.
+
+This keeps the runtime aligned with SubZeroClaw's philosophy: one tool, the shell. The included skills document the commands to use; no plugin registry or helper command layer is required.
 
 ## Config reference
 

@@ -148,8 +148,11 @@ char *tool_execute(const char *name, const char *args_json) {
     /* Reserve 16 bytes at the head for the "[exit:N] " prefix */
     char *out = malloc(MAX_OUTPUT + 16);
     size_t total = 16, n;
-    while ((n = fread(out + total, 1, MAX_OUTPUT - 1, fp)) > 0) {
-        total += n; if (total >= MAX_OUTPUT + 15) break;
+    while (total < MAX_OUTPUT + 15) {
+        size_t remaining = (MAX_OUTPUT + 15) - total;
+        n = fread(out + total, 1, remaining, fp);
+        if (n == 0) break;
+        total += n;
     }
     out[total] = '\0';
     int status = pclose(fp);
@@ -205,8 +208,10 @@ static char *build_request(const Config *cfg, cJSON *msgs, cJSON *tools) {
     cJSON_AddItemReferenceToObject(req, "messages", msgs);
     if (tools) cJSON_AddItemReferenceToObject(req, "tools", tools);
     char *json = cJSON_PrintUnformatted(req);
-    cJSON_DetachItemFromObject(req, "messages");
-    if (tools) cJSON_DetachItemFromObject(req, "tools");
+    cJSON *msg_ref = cJSON_DetachItemFromObject(req, "messages");
+    cJSON *tools_ref = tools ? cJSON_DetachItemFromObject(req, "tools") : NULL;
+    if (msg_ref) cJSON_Delete(msg_ref);
+    if (tools_ref) cJSON_Delete(tools_ref);
     cJSON_Delete(req);
     return json;
 }
