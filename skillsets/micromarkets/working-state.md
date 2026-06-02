@@ -4,9 +4,9 @@ The market you're currently helping the user build. Loaded every turn so a resta
 or a gap in the conversation doesn't lose the thread. Keep it to the live draft;
 clear it when the market is confirmed or cancelled.
 
-When `mm` is wired, the backend draft (`mm draft show <id>`) is the source of truth
-and this file is just a fast cache you keep in sync. Standalone, this file IS the
-draft memory — update it with `shell` as fields get settled.
+The market-service draft (`GET /drafts/{id}`) is the source of truth; this file is a fast
+local cache you keep in sync so a restart/silence doesn't lose the thread. Update it with
+`shell` as fields get settled.
 
 Update the block below in place (rewrite, don't append duplicates):
 

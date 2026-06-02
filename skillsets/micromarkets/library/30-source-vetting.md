@@ -1,49 +1,42 @@
 # Source vetting
-Use when: you validate sources for a draft — `mm sources validate` returns a
-swap/unknown/reject verdict, or the user names sources to vet. Re-read this whenever
-sources change.
+Use when: you validate sources for a draft, or the user names sources. Re-read whenever
+sources change. All calls are `curl` to market-service (see `api.md`).
 
-Every source goes through the bench. Run:
+Validate every source through the bench:
 
 ```bash
-mm sources validate <draft_id> <domain-or-url> [<domain-or-url> ...]
+curl -s "$MARKET_SERVICE_URL/drafts/$ID/validate-sources" -H 'content-type: application/json' \
+  -d "{\"creator_id\":$C,\"sources\":[\"en.wikipedia.org\",\"espn.com\"]}"
 ```
 
-It returns a verdict per source: `accept`, `swap_pending_confirmation`, `unknown`,
-or `reject`. Read each verdict aloud to the user.
+Returns a verdict per source: `accept`, `swap`, `unknown`, or `reject`. Read each aloud.
 
 ## Decision tree
 
-- **accept** → auto-persisted, nothing to do. Move on.
-- **swap_pending_confirmation** → the bench has a better/alternative route. **Always
-  ask** the user, then on agreement: `mm sources accept <draft_id> <original> --as swap`.
-- **unknown** → the bench doesn't list it. See the shortcut below.
-- **reject** → **always ask**; propose alternatives from the bench's suggestions.
-  Accept a reject override only with explicit user confirmation:
-  `mm sources accept <draft_id> <original> --as reject` (rarely).
+- **accept** → auto-persisted, nothing to do.
+- **swap** → the bench has a better route. **Ask** the user, then on yes:
+  `accept-source {creator_id, source, choice:"accept_swap"}`.
+- **unknown** → see the shortcut below.
+- **reject** → **ask**; propose alternatives. Only override with explicit user yes:
+  `accept-source {... choice:"reject"}` removes it.
+
+```bash
+curl -s "$MARKET_SERVICE_URL/drafts/$ID/accept-source" -H 'content-type: application/json' \
+  -d "{\"creator_id\":$C,\"source\":\"aemet.es\",\"choice\":\"accept_unknown\"}"
+```
 
 ## Accept-on-trust shortcut for `unknown`
 
-When the user names a specific source **as part of their market request** ("Sources:
-espn.com", "use aemet.es"), treat that as implicit accept-on-trust for `unknown`
-verdicts:
+When the user names a source **as part of their request** ("Sources: espn.com", "use aemet.es"),
+treat that as implicit accept for `unknown` verdicts: call `accept-source` with
+`choice:"accept_unknown"` **without re-asking**, then note it briefly ("Accepted `aemet.es`
+as unknown — the bench doesn't list it, so the oracle fetches it directly at resolve").
+For `swap`/`reject`, **always** ask — there the bench says the user's choice is probably wrong.
 
-1. `mm sources validate <draft_id> <their list>`
-2. For each `accept` — done.
-3. For each `unknown` — `mm sources accept <draft_id> <src> --as unknown` **without
-   re-asking**, then briefly note it: "Accepted `aemet.es` as unknown — the bench
-   doesn't list it, so the oracle fetches it directly at resolve."
-4. For each `swap`/`reject` — **always** ask. Here the bench is telling you the
-   user's choice is probably wrong; don't override silently, don't auto-accept.
-
-If the user names a source **mid-conversation** ("also add bbc.co.uk"), same logic —
-they just said it, so it's their stated preference for `unknown`.
-
-The exception: if you fetched the source yourself (`library/10-research.md`) and it's
-clearly broken (paywall/login wall, or 404), ask before accepting even if named.
+If the user names a source mid-conversation, same logic. Exception: if you fetched it yourself
+(`10-research.md`) and it's clearly broken (paywall/login/404), ask before accepting.
 
 ## Don't
 
-Never auto-rewrite a source to a different one. Never accept a `swap`/`reject`
-without explicit confirmation. The bench decides validity; you read the verdict and
-get the user's call.
+Never silently rewrite a source. Never accept a `swap`/`reject` without explicit confirmation.
+The bench decides validity; you read the verdict and get the user's call.

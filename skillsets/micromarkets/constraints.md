@@ -1,7 +1,8 @@
 # Constraints (always on)
 
 These hold no matter which `library/` playbook you've pulled. They're advice, not
-enforced here — but `mm` enforces the load-bearing ones server-side, so don't
+enforced here — but **market-service/oracle-service enforce** the load-bearing ones
+server-side (a deploy with a bad/unvetted field returns a 400 `refused`), so don't
 fight them.
 
 - **Four templates only.** A market must fit `event_by_date`, `account_says`,
@@ -17,7 +18,7 @@ fight them.
   screenshots, paywalled or login-gated pages.
 - **Never auto-rewrite a source.** If the bench says a domain is blocked or only
   reachable via an alternative, surface the swap and get explicit confirmation
-  (`mm sources accept`). Unknown sources also need explicit confirmation.
+  (`POST /drafts/{id}/accept-source`). Unknown sources also need explicit confirmation.
 - **Always run source-vetting before you propose** (`library/30-source-vetting.md`).
   Skipping it is the one thing that breaks markets quietly.
 - **Resolution date strictly after today (UTC).** Parse what the user said into a
@@ -31,6 +32,6 @@ fight them.
   predicate + crisp "what counts" rules + fetchable sources are how you prevent a
   market that quietly gives the money back instead of resolving.
 
-You set the **predicate, the date, and the sources** (subject to the above). You
-never set or name an amount, an address, a nonce, a deadline, or a state
-transition — the service owns money, clocks, and chain.
+You set the **predicate, the date, and the sources** (subject to the above) and call
+the services per `api.md`. You never set or name an amount, an address, a nonce, a
+deadline, or a state transition — the services own money, clocks, and chain.

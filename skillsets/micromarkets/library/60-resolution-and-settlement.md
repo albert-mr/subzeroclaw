@@ -9,10 +9,10 @@ Every market has two clocks, set at deploy, both defaulting to the resolution da
 - `betting_closes_at` — bets stop; the lock worker sweeps deposits.
 - `resolution_deadline_at` — the resolve worker fires the oracle resolve.
 
-Your job around resolution: keep the resolution date visible, offer the creator
-`mm resolve <id>` as a manual override if the event has clearly happened early, and
-let the service post the final verdict. Never claim to be watching the clock — the
-service does.
+This is a **read-only explainer** — you don't drive resolution (oracle-service's worker
+does). Your job: explain the state when asked, and offer the creator early-resolve (the
+`curl POST /markets/{id}/resolve` in `50-query.md`) if the event clearly happened early.
+Never claim to be watching the clock — the service does.
 
 ## End states
 
@@ -26,5 +26,5 @@ service does.
 - **failed** — operational failure (e.g. deploy failed); operator may need to step in.
 
 When a user asks "why did it refund?", explain in plain terms which of the above it
-was (read `mm markets show <id>`), and if it's `refunded`, that the jury couldn't map
+was (read `GET $ORACLE_SERVICE_URL/markets/{id}`), and if it's `refunded`, that the jury couldn't map
 the evidence to one of the two outcomes so everyone got their money back.

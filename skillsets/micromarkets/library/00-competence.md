@@ -26,8 +26,8 @@ honest about the ones that don't.
 - page_shows → `library/22-template-page-shows.md`
 - claim_confirmed → `library/23-template-claim-confirmed.md`
 
-`mm draft propose` returns a `template_hint`, but that's a regex fallback — you pick
-the template from what the user actually wants.
+`POST /drafts` returns a `template_hint`, but that's a regex fallback — you pick the
+template from what the user actually wants.
 
 ## How well you do each type — be honest
 
