@@ -39,17 +39,10 @@ For a known URL, fetch it directly:
 curl -L -A 'Mozilla/5.0' 'https://example.com'
 ```
 
-If HTML is noisy, strip it with Python:
+If HTML is noisy, strip it with Python. Use `python3 -c` so piped HTML stays on stdin:
 
 ```bash
-curl -L -s 'https://example.com' | python3 - <<'PY'
-import re, sys, html
-text = sys.stdin.read()
-text = re.sub(r'(?is)<(script|style).*?</\1>', ' ', text)
-text = re.sub(r'(?s)<[^>]+>', ' ', text)
-text = html.unescape(re.sub(r'\s+', ' ', text)).strip()
-print(text[:12000])
-PY
+curl -L -s 'https://example.com' | python3 -c 'import re,sys,html; text=sys.stdin.read(); text=re.sub(r"(?is)<(script|style).*?</\1>", " ", text); text=re.sub(r"(?s)<[^>]+>", " ", text); print(html.unescape(re.sub(r"\s+", " ", text)).strip()[:12000])'
 ```
 
 ### Workflow

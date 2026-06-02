@@ -66,9 +66,9 @@ You monitor /home/pi/data every hour.
 EOF
 ```
 
-No format spec. No skill registry. No trigger matching. Just plain text the LLM reads. For small deployments, loading all skills is intentional. If the directory grows, keep `skills/index.md` short so the prompt has a compact map.
+No format spec. No skill registry. No trigger matching. Just plain text the LLM reads. For small deployments, loading all skills is intentional. Keep skills short; `skills/index.md` is only a map, not a replacement for loading the other files.
 
-The skills included in this repo (`skills/`) are examples. `soul.md`, `search.md`, `memory.md`, and `skill-management.md` show a minimal single-user continuity layer without adding adapters or changing the runtime loop.
+The skills included in this repo (`skills/`) are examples. `soul.md`, `system.md`, `search.md`, `memory.md`, `skill-management.md`, `debugging.md`, and `index.md` show a minimal single-user continuity layer without adding adapters or changing the runtime loop.
 
 ## Build
 
@@ -152,7 +152,7 @@ The continuity layer does not add adapters or custom tools. It teaches the model
 - Memory is a normal skill: `~/.subzeroclaw/skills/memory.md`.
 - Session recall is `rg`/`grep` over `~/.subzeroclaw/logs/`.
 - Web/page fetching is `curl` plus normal text processing.
-- Reusable procedures are additional markdown files in `~/.subzeroclaw/skills/`.
+- Reusable procedures and debugging playbooks are additional markdown files in `~/.subzeroclaw/skills/`.
 
 This keeps the runtime aligned with SubZeroClaw's philosophy: one tool, the shell. The included skills document the commands to use; no plugin registry or helper command layer is required.
 

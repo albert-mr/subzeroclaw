@@ -1,11 +1,14 @@
 # SubZeroClaw Skill Index
 
-Core skills loaded by default:
+All `.md` files in the skills directory are loaded into the prompt. Keep them short.
 
-- `soul.md` — identity/personality as a normal skill.
-- `system.md` — basic CLI tools available through shell.
-- `search.md` — use ordinary shell commands for session recall and web/page fetching.
-- `memory.md` — durable facts stored as plain markdown in the skills directory.
-- `skill-management.md` — improve reusable procedures as plain markdown skills.
+Core skills:
 
-Keep this index short. If the skills directory grows large, use this file as the compact overview and move detailed procedures into separate skills.
+- `soul.md` — identity/personality.
+- `system.md` — shell operating rules.
+- `search.md` — session recall and web/page fetching with shell.
+- `memory.md` — durable facts as markdown.
+- `skill-management.md` — improve reusable procedures.
+- `debugging.md` — reproduce, root-cause, fix, verify.
+
+This index is only a map; it does not replace the other skill files.

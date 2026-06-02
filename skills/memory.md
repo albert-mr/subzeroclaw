@@ -22,7 +22,7 @@ Do not save:
 - facts likely stale within a week
 - large raw logs or data dumps
 
-To save a durable fact, edit this skill directly with shell commands:
+To save a durable fact, append under `## Saved Facts`:
 
 ```bash
 mkdir -p ~/.subzeroclaw/skills
@@ -36,3 +36,5 @@ cat ~/.subzeroclaw/skills/memory.md 2>/dev/null
 ```
 
 Procedures belong in separate skill files. Durable facts belong here.
+
+## Saved Facts
